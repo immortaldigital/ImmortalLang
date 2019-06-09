@@ -12,70 +12,37 @@ namespace ImmortalLang
 
         public void BuildWASM()
         {
-            List<byte> codeTotal = new List<byte>();
-
-            List<byte> codeSection = new List<byte>();
-            List<byte> typeSection = new List<byte>();
-            List<byte> funcSection = new List<byte>();
-            List<byte> exportSection = new List<byte>();
-
-            List<byte> functionType = new List<byte>();
-            List<byte> functionCode = new List<byte>();
-            List<byte> functionLocal = new List<byte>();
-            List<byte> functionBody = new List<byte>();
-            List<byte> functionInputParam = new List<byte>();
-            List<byte> functionOutputParam = new List<byte>();
-
-            functionInputParam.Add(Types.f32);
-            functionInputParam.Add(Types.f32);
-            functionOutputParam.Add(Types.f32);
-            functionType.Add(Types.FUNC);
-            functionType.AddRange(Encoder.wrap(functionInputParam));
-            functionType.AddRange(Encoder.wrap(functionOutputParam));
-
-            //typeSection.AddRange(functionType);
-            //functionType.Insert(0, 0x01); //for some reason the length inserted has to be 1
-            typeSection = Encoder.createSection(Section.TYPE, Encoder.wrapLists(functionType));
-
-            funcSection.Add(0x00);
-            funcSection = Encoder.wrap(funcSection);
-            funcSection = Encoder.createSection(Section.FUNC, funcSection);
-
-            exportSection.AddRange(Encoder.encodeString("add"));
-            exportSection.Add(ExportType.FUNC);
-            exportSection.Add(0x00); //function index
-            //exportSection = ;
-            exportSection = Encoder.createSection(Section.EXPORT, Encoder.wrapLists(exportSection));
-
-            functionLocal.Add(0x00);
-            functionCode.Add(Opcodes.get_local); functionCode.AddRange(Encoder.unsignedLEB128(0x00));
-            functionCode.Add(Opcodes.get_local); functionCode.AddRange(Encoder.unsignedLEB128(0x01));
-            functionCode.Add(Opcodes.f32_add);
-
-            //functionBody.AddRange(functionLocal);
-            //functionBody.AddRange(functionCode);
-            functionBody = Encoder.concatentate(functionLocal, functionCode);
-            functionBody.Add(Opcodes.function_end);
-            functionBody = Encoder.wrap(functionBody);
-            codeSection = Encoder.createSection(Section.CODE, Encoder.wrapLists(functionBody));
-            //codeSection.Add(Section.CODE);
-            //codeSection.AddRange(Encoder.wrap(functionBody));
-
-            //codeTotal.AddRange(Headers.magicModule);
-            //codeTotal.AddRange(Headers.moduleVersion);
-            //codeTotal.AddRange(typeSection);
-
-            //codeTotal.AddRange(funcSection);
-
-            //codeTotal.AddRange(exportSection);
-
-            //codeTotal.AddRange(codeSection);
+        	Func funcAdd = new Func("add");
+        	Func funcMagic = new Func("magic");
+        	Func func42 = new Func("f42");
+        	Binary bin = new Binary();
+        	
+            funcAdd.initAddInt();
             
-            codeTotal = Encoder.concatentate(Headers.magicModule, Headers.moduleVersion, typeSection, funcSection, exportSection, codeSection);
+            funcMagic.setInputParameters();
+            funcMagic.setOutputParameters(Types.i32);
+            funcMagic.pushCode(Opcodes.i32_const, 0x20); //to pass a value greater than 255, use Func.pushCodeList(unsignedLEB128());
+            funcMagic.pushCode(Opcodes.i32_const, 0x0a);
+            funcMagic.pushCode(Opcodes.call, 0x00);
+            
+            func42.setInputParameters();
+            func42.setOutputParameters(Types.i32);
+            func42.pushCode(Opcodes.i32_const, 0x2a); //WARNING. second parameter should be List<byte> LEB128. Only works here cause single byte
+
+		    funcAdd.setExport(false);
+		    
+		    // Binary class will automatically sort these based on index to ensure the export definition index matches the function code index
+		    // This means they can be added in whatever order desired    
+		    bin.addFunction(funcAdd);
+		    bin.addFunction(funcMagic);
+		    bin.addFunction(func42);
+		    
+		    
+		    byte[] bits = bin.getBinary();
 
             File.Delete(outFilename);
             FileStream fs = File.OpenWrite(outFilename);
-            fs.Write(codeTotal.ToArray(), 0, codeTotal.Count);
+            fs.Write(bits, 0, bits.Length);
             fs.Close();
         }
 

@@ -12,6 +12,23 @@ namespace ImmortalLang
 		 * Turn each of those 7-bit lengths into a byte by adding a 1 to all and a 0 to the final byte
 		*/
 		
+		public static string hexString(List<byte> bits)
+		{
+			StringBuilder hex = new StringBuilder(bits.Count * 3);
+			
+			foreach (byte b in bits)
+			{
+				hex.AppendFormat("{0:x2} ", b);
+			}
+			
+			if(hex.Length>0)
+			{
+				hex.Remove(hex.Length - 1, 1); //remove space at end
+			}
+			
+			return hex.ToString();
+		}
+		
         public static List<byte> unsignedLEB128(int num)
         {
             List<byte> buffer = new List<byte>();
@@ -98,8 +115,16 @@ namespace ImmortalLang
     {
         public static readonly byte get_local = 0x20;
         public static readonly byte f32_add = 0x92;
+        public static readonly byte f32_sub = 0x93;	
         public static readonly byte i32_add = 0x6a;
-        public static readonly byte function_end = 0x0b;
+        
+        public static readonly byte i32_const = 0x41;
+        public static readonly byte i64_const = 0x42;
+        public static readonly byte f32_const = 0x43;
+		public static readonly byte f64_const = 0x44;
+		
+		public static readonly byte call = 0x10;
+		public static readonly byte function_end = 0x0b;
     }
 
     public static class Types

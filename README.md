@@ -2,7 +2,7 @@
 My goal is to create my own programming language, parser, and compiler. I'm starting out following this tutorial: http://blog.scottlogic.com/2019/05/17/webassembly-compiler.html
 
 # Usage
-Compile the source files and run, it will generate the binary web assembly file. Currently it is hardcoded to output a function 'add(f32 f32) (f32)' which does what you would expect. Put the generated imlang.wasm in the bin folder and open the html page to gave upon the magic.
+Compile the source files and run, it will generate the binary web assembly file. Currently it is hardcoded to output a function 'add(f32 f32) (f32)' which does what you would expect. Put the generated imlang.wasm in the bin folder and open the html page to gaze upon the magic <3
 
 # Eventual Features:
 - Basic var types (int, float, double, long, array, pointer)

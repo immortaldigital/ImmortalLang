@@ -17,7 +17,7 @@ namespace ImmortalLang
 	    
 	    private static byte GUID = 0x00;
     
-		public Func(string label)
+	    public Func(string label, bool export = true)
 		{
 		    inParam = new List<byte>();
 		    outParam = new List<byte>();
@@ -26,6 +26,9 @@ namespace ImmortalLang
 		    
 		    this.label = label;
 		    this.index = GUID++;
+		    this.export = export;
+		    
+		    //TODO remove
 		    this.export = true;
 		    
 		    local.Add(0x00);
@@ -33,7 +36,7 @@ namespace ImmortalLang
 		
 		public void initAddInt()
 		{
-			label = "add";
+			//label = "add";
 			inParam.Clear();
 			outParam.Clear();
 			code.Clear();
@@ -42,19 +45,19 @@ namespace ImmortalLang
 		    inParam.Add(Types.i32);
 		    outParam.Add(Types.i32);
 		    
-		    code.Add(Opcodes.get_local); code.AddRange(Encoder.unsignedLEB128(0x00));
-            code.Add(Opcodes.get_local); code.AddRange(Encoder.unsignedLEB128(0x01));
-            code.Add(Opcodes.i32_add);
+		    code.AddRange(Op.get_local); code.AddRange(Encoder.uLEB128(0x00));
+            code.AddRange(Op.get_local); code.AddRange(Encoder.uLEB128(0x01));
+            code.AddRange(Op.i32_add);
 		}
 		
-		public void pushCode(params byte[] opcode)
+		public void pushCodeSingle(params byte[] opcode)
 		{
 			for(int i=0; i<opcode.Length; i++)
 			{
 				code.Add(opcode[i]);
 			}
 		}
-		public void pushCodeList(params List<byte>[] opcode)
+		public void pushCode(params IEnumerable<byte>[] opcode)
 		{
 			for(int i=0; i<opcode.Length; i++)
 			{
@@ -111,7 +114,7 @@ namespace ImmortalLang
 		{
 			List<byte> temp = new List<byte>();
 			temp = Encoder.concatentate(getLocal(), getCode());
-            temp.Add(Opcodes.function_end);
+            temp.AddRange(Op.end);
             temp = Encoder.wrap(temp);
             
             return temp;

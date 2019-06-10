@@ -6,14 +6,13 @@ fetch('./imlang.wasm').then(
 function run(wasm)
 {
 	var container = document.getElementById("container");
+	var list = wasm.exports.listNew(123);
+	wasm.exports.listAdd(list, 10);
+	wasm.exports.listAdd(list, -20);
 
-	for(var i=0; i<10; i++)
-	{
-		var a = Math.floor(Math.random()*100);
-		var b = Math.floor(Math.random()*100);
-
-		container.textContent += a + " + " + b + " = ";
-		container.textContent += wasm.exports.add(a, b);
+		container.textContent += wasm.exports.listSum(list);
 		container.textContent += "\r\n";
-	}
+		
+	const memory = new Uint32Array(wasm.exports.mem.buffer, 0, 1024);
+	container.textContent += memory;
 }

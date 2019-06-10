@@ -1,7 +1,7 @@
 # ImmortalLang
 My goal is to create my own programming language, parser, and compiler. I'm starting out following this tutorial: http://blog.scottlogic.com/2019/05/17/webassembly-compiler.html
 
-# Usage
+## Usage
 Compile the source files and run, it will generate the binary web assembly file. Currently it is hardcoded to produce a basic LinkedList. It has the following exported functions:
 - listNew(optional value): list
 - listAdd(list, value)
@@ -11,7 +11,7 @@ Where list/memaddr are both int32 ptr and value is an int32.
 
 
 
-# Eventual Features:
+## Eventual Features:
 - Basic var types (int, float, double, long, array, pointer)
 - Simple classes (properties and methods)
 - Control flow (if/else if/else)
@@ -20,7 +20,11 @@ Where list/memaddr are both int32 ptr and value is an int32.
 
 Ideally I will implement all the features required to build the ImmortalLang compiler, then rewrite it in itself (I mean, all the best languages are written in themselves so for ImmortalLang to truely reach that level of immortality it is basically a requirement).
 
-# Current Features:
+## Current Features:
 - Compiles a C# representation of WAT to Wasm.
 - Supports all opcodes/features of Wasm (including memory)
 - Proof of concept LinkedList included
+
+## Next steps:
+Figure out how local variables work (instead of allocating part of the memory to each function variable).
+Begin parsing simple .imlang code and figure out how to translate that into wasm.

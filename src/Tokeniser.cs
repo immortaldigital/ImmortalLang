@@ -53,8 +53,33 @@ namespace ImmortalLang
 				} else {
 					groupName = "LABEL";
 				}
-				
 			}
+			if(group == TokenCodes.SYMBOL) //check if it's a keyword or label
+			{
+				if(TokenCodes.binaryExpressions.Match(value).Success)
+				{
+					group = TokenCodes.EXPRESSION;
+					groupName = "XPRSN";
+				} else {
+					groupName = "NTXPN";
+				}
+			}
+		}
+		
+		public Token(int group, string groupName, string value)
+		{
+			this.group = group;
+			this.groupName = groupName;
+			this.value = value;
+		}
+		
+		public Token Clone()
+		{
+			Token t = new Token(group, groupName, value);
+			//t.Group = group;
+			//t.GroupName = groupName;
+			//t.Value = value;
+			return t;
 		}
 		
 		public int Group
@@ -80,11 +105,13 @@ namespace ImmortalLang
 	{
 		public static readonly Regex divider = new Regex(@"(?:([.0-9]+)|(\w+)|(\s+)|(.))");
 		public static readonly Regex keywords = new Regex(@"(if|else|for|while|object|var|return|new|int|float|long|double)");
+		public static readonly Regex binaryExpressions = new Regex(@"(\+|\-|\/|\*)");
 		
-		public static readonly int NUMBER = 0;
-		public static readonly int LABEL = 1;
-		public static readonly int WHITESPACE = 2;
-		public static readonly int SYMBOL = 3;
-		public static readonly int KEYWORD = 4;
+		public const int NUMBER = 0;
+		public const int LABEL = 1;
+		public const int WHITESPACE = 2;
+		public const int SYMBOL = 3;
+		public const int KEYWORD = 4;
+		public const int EXPRESSION = 5;
 	}
 }

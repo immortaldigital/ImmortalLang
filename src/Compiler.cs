@@ -16,7 +16,33 @@ namespace ImmortalLang
             // Binary class will automatically sort functions based on index to ensure the export definition index matches the function code index
             // This means functions can be added in whatever order desired
             
-            binary = MakeLinkedListBinary();
+            //binary = MakeLinkedListBinary();
+            List<Token> tokens = Tokeniser.getTokenArray(@"return ((((1*2) + 4) * 1) + ((2 + 3) + (4*(1+2))));");
+            /*
+             ((((1*2) + 4) * 1) + ((2 + 3) + (4*(1+2))))
+             */
+            Parser p = new Parser(tokens);
+            p.Parse();
+            p.Dump();
+            List<Statement> statements = p.getStatements();
+            
+            binary = new Binary();
+            Func f = new Func("temp");
+            
+            f.setInputParameters();
+            f.setOutputParameters(Types.i32);
+            f.setLocalCounts();
+            //*
+            Console.WriteLine("Printing pretty statements");
+            foreach(Statement s in statements)
+            {
+            	s.Tree.PrintPretty("", true);
+        		f.pushCode(EncodeStatement(s));
+            }
+            //*/
+            
+            
+            binary.addFunction(f);
             
             byte[] bits = binary.getBinary();
 
@@ -24,6 +50,47 @@ namespace ImmortalLang
             FileStream fs = File.OpenWrite(outFilename);
             fs.Write(bits, 0, bits.Length);
             fs.Close();
+        }
+        
+        private List<byte> EncodeStatement(Statement s)
+        {
+        	List<byte> code = new List<byte>();
+        	
+        	if (s.Tree.Details.Value == "return")
+        	{
+        		code.AddRange(EncodeBinaryExpression(s.Tree.Children[0])); //first expression must be binary expression
+        	}
+        	
+        	return code;
+        }
+        
+        private List<byte> EncodeBinaryExpression(Node n)
+        {
+        	List<byte> code = new List<byte>();
+        	
+        	if(n.Details.Group == TokenCodes.NUMBER)
+        	{
+        		code.AddRange(Op.i32_const);
+        		code.AddRange(Encoder.uLEB128(Int32.Parse(n.Details.Value)));
+        	} else if(n.Details.Group == TokenCodes.EXPRESSION) {
+        		code.AddRange(EncodeBinaryExpression(n.Children[0]));
+        		code.AddRange(EncodeBinaryExpression(n.Children[1]));
+        		
+        		Console.WriteLine("Order: " + n.Details.Value);
+        		
+        		if(n.Details.Value == "+") {
+        			code.AddRange(Op.i32_add);
+        		} else if(n.Details.Value == "-") {
+        			code.AddRange(Op.i32_sub);
+        		} else if(n.Details.Value == "*") {
+        			code.AddRange(Op.i32_mul);
+        		} else if(n.Details.Value == "/") {
+        			code.AddRange(Op.i32_div_s);
+        		}
+        	}
+        	
+        	
+        	return code;
         }
 		
         public Binary MakeLinkedListBinary()

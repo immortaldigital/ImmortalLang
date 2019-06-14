@@ -71,7 +71,7 @@ namespace ImmortalLang
 			{
 				Statement s = new Statement(tokens[currentToken]);
 				eat(); //keyword
-				ParseExpression(s);
+				ParseExpressionRaw(s);
 				
 				eat(); //;
 				
@@ -106,6 +106,49 @@ namespace ImmortalLang
 					//s.StepUp();
 					s.PushCurrent(tokens[currentToken]); //now update to binaryExpression
 					eat();
+				}
+				//Console.WriteLine();
+				//eat(); //parameter
+			}
+		}
+		private void ParseExpressionRaw(Statement s)
+		{
+			while(tokens[currentToken].Value != ";")
+			{
+				if(tokens[currentToken].Group == TokenCodes.NUMBER)
+				{
+					if(s.Current.Details.Group == TokenCodes.KEYWORD) //initial number
+					{
+						s.PushChild(tokens[currentToken]);
+						s.Follow();
+						eat();
+					} else {
+						s.PushChild(tokens[currentToken]);
+						s.Follow();
+						eat();
+					}
+				}
+				
+				if(tokens[currentToken].Group == TokenCodes.EXPRESSION)
+				{
+					if(s.Current.Parent.Details.Group != TokenCodes.EXPRESSION) //only 1 number in tree
+					{
+						s.PushChild(tokens[currentToken]); //now update to binaryExpression
+						s.Current.RotateLeft();
+						eat();
+					} else if (Tokeniser.OperatorPrecedence(tokens[currentToken], s.Current.Parent.Details)) {
+						s.PushChild(tokens[currentToken]); //right side precedence
+						s.Current.RotateLeft();
+						eat();
+					} else { //left side precedence
+						s.StepUp();
+						s.InsertParent(tokens[currentToken]);
+						s.StepUp();
+						//s.PushChild(); //right side precedence
+						//s.Current.RotateLeft();
+						eat();
+					}
+					
 				}
 				//Console.WriteLine();
 				//eat(); //parameter

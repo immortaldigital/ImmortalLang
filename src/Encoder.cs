@@ -46,6 +46,28 @@ namespace ImmortalLang
 
             return buffer;
         }
+        
+        public static List<byte> sLEB128(int num)
+        {
+            List<byte> buffer = new List<byte>();
+            bool more = true;
+
+            while(more)
+            {
+                byte b = (byte)(num & 0x7f);
+                num >>= 7;
+                
+                if ((num == 0 && (b & 0x40) == 0) || (num == -1 && (b & 0x40) != 0)) {
+			      more = false;
+			    } else {
+			      b |= 0x80;
+			    }
+                
+                buffer.Add(b);
+            }
+
+            return buffer;
+        }
 
         //encodeString simply turns the string into a byte array with the first byte being the length of the array
         //I suspect the byte length should be LEB encoded incase the string is longer than 256 characters
@@ -345,7 +367,9 @@ namespace ImmortalLang
 
     public static class Types
     {
+    	public static readonly byte f64 = 0x7c;
         public static readonly byte f32 = 0x7d;
+        public static readonly byte i64 = 0x7e;
         public static readonly byte i32 = 0x7f;
         public static readonly byte FUNC = 0x60;
         public static readonly byte EMPTY = 0x00;

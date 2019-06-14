@@ -6,7 +6,7 @@ namespace ImmortalLang
 	public class Statement
 	{
 		public Node Tree { get; set; }
-		private Node current;
+		public Node Current;
 		
 		public Statement(Token topLevel)
 		{
@@ -16,7 +16,7 @@ namespace ImmortalLang
 			}
 			
 			Tree = new Node(topLevel, null);
-			current = Tree;
+			Current = Tree;
 		}
 		
 		public void PushAuto(Token sub)
@@ -33,39 +33,50 @@ namespace ImmortalLang
 			}
 		}
 		
+		public void InsertParent(Token t)
+		{
+			Node temp = Current.Parent;
+			Node n = new Node(t, temp);
+			
+			temp.Children.Add(n);
+			temp.Children.Remove(Current);
+			n.Children.Add(Current);
+			Current.Parent = n;
+		}
+		
 		public void PushCurrent(Token t)
 		{
-			//Node n = new Node(t, current.Parent);
-			current.Details = t.Clone();
+			//Node n = new Node(t, Current.Parent);
+			Current.Details = t.Clone();
 		}
 		public void PushChild(Token t)
 		{
-			Node n = new Node(t, current);
-			current.Children.Add(n);
+			Node n = new Node(t, Current);
+			Current.Children.Add(n);
 		}
 		public void Follow() //can be called after PushChild to follow kiddo
 		{
-			current = current.Children[current.Children.Count - 1];
+			Current = Current.Children[Current.Children.Count - 1];
 		}
 		public void SetChild(Token t, int index)
 		{
-			if(index<current.Children.Count)
+			if(index<Current.Children.Count)
 			{
-				current.Children[index].Details = t.Clone();
+				Current.Children[index].Details = t.Clone();
 			} else { Console.WriteLine("Error: YOU'RE TRYING TO CHANGE A KID THAT DOESN'T EXIST"); }
 		}
 		public void StepDown(int index)
 		{
-			if(index<current.Children.Count)
+			if(index<Current.Children.Count)
 			{
-				current = current.Children[index];
+				Current = Current.Children[index];
 			} else { Console.WriteLine("Error: Child doesn't exist, maybe they were killed? (index out of bonds)"); }
 		}
 		public void StepUp()
 		{
-			if(current.Parent != null)
+			if(Current.Parent != null)
 			{
-				current = current.Parent;
+				Current = Current.Parent;
 			} else { Console.WriteLine("Error: Parent suffered results existential threat (null)"); }
 		}
 		
@@ -93,6 +104,41 @@ namespace ImmortalLang
 			Children = new List<Node>();
 			Details = t.Clone();
 			Parent = parent;
+		}
+		
+		public void RotateRight()
+		{
+			Token temp = Details.Clone();
+			if(Children.Count > 0)
+			{
+				Details = Children[0].Details.Clone();
+				Children[0].Details = temp; // in case of only 1 child node
+			}
+			if(Children.Count > 1)
+			{
+				for(int i=0; i<Children.Count - 1; i++)
+				{
+					Children[i].Details = Children[i + 1].Details;
+				}
+				Children[Children.Count - 1].Details = temp;
+			}
+		}
+		public void RotateLeft() //honest we don't need to use .Clone() here but will incase we extend Token later to use references
+		{
+			Token temp = Details.Clone();
+			if(Children.Count > 0)
+			{
+				Details = Children[Children.Count - 1].Details.Clone();
+				Children[Children.Count - 1].Details = temp; // in case of only 1 child node
+			}
+			if(Children.Count > 1)
+			{
+				for(int i = Children.Count - 1; i > 0; i--)
+				{
+					Children[i].Details = Children[i - 1].Details;
+				}
+				Children[0].Details = temp;
+			}
 		}
 		
 		public bool isTerminal()

@@ -9,6 +9,8 @@ Compile the source files and run, it will generate the binary web assembly file.
 - allocate(value): memaddr.
 Where list/memaddr are both int32 ptr and value is an int32.
 
+It can also parse binary expressions. However you must either use brackets for everything or not at all ie *a + b - c;* or *((a + b) - c);* It fully supports operator precedence but I'll be adding mixed support for brackets and precedence soon.
+
 
 
 ## Eventual Features:
@@ -24,7 +26,12 @@ Ideally I will implement all the features required to build the ImmortalLang com
 - Compiles a C# representation of WAT to Wasm.
 - Supports all opcodes/features of Wasm (including memory)
 - Proof of concept LinkedList included
+- Parsing of binary expressions
 
 ## Next steps:
-Figure out how local variables work (instead of allocating part of the memory to each function variable).
-Begin parsing simple .imlang code and figure out how to translate that into wasm.
+[DONE] Figure out how local variables work (instead of allocating part of the memory to each function variable).
+[DONE] Begin parsing simple .imlang code and figure out how to translate that into wasm.
+[DONE] Binary expression parsing
+[Todo] Control flow statements
+[Todo] Add variables
+[Todo] Functions/classes

@@ -16,8 +16,18 @@ namespace ImmortalLang
             // Binary class will automatically sort functions based on index to ensure the export definition index matches the function code index
             // This means functions can be added in whatever order desired
             
-            //binary = MakeLinkedListBinary();
-            List<Token> tokens = Tokeniser.getTokenArray(@"return ((((1*2) + 4) * 1) + ((2 + 3) + (4*(1+2))));");
+            string[] operators = {"+", "+", "/", "*"};
+            Random r = new Random();
+            string field = "";
+            for(int i=0; i<10; i++)
+            {
+            	field += (Math.Floor(r.NextDouble()*100)).ToString();
+            	field += operators[(int)Math.Floor(r.NextDouble()*4)];
+            }
+            field += (Math.Floor(r.NextDouble()*100)).ToString();
+            
+            Console.WriteLine(field);
+            List<Token> tokens = Tokeniser.getTokenArray(@"return " + field + ";");
             /*
              ((((1*2) + 4) * 1) + ((2 + 3) + (4*(1+2))))
              */
@@ -38,6 +48,20 @@ namespace ImmortalLang
             {
             	s.Tree.PrintPretty("", true);
         		f.pushCode(EncodeStatement(s));
+            }
+            
+            List<byte> temp = EncodeStatement(statements[0]);
+            foreach(byte b in temp)
+            {
+            	if(b == 0x6a) {
+    				Console.Write("+");
+        		} else if(b == 0x6b) {
+    				Console.Write("-");
+    			} else if(b == 0x6c) {
+    				Console.Write("*");
+				} else if(b == 0x6d) {
+    				Console.Write("/");
+    			}
             }
             //*/
             
@@ -68,15 +92,15 @@ namespace ImmortalLang
         {
         	List<byte> code = new List<byte>();
         	
+        	Console.WriteLine(n.Details.Value);
+        	
         	if(n.Details.Group == TokenCodes.NUMBER)
         	{
         		code.AddRange(Op.i32_const);
-        		code.AddRange(Encoder.uLEB128(Int32.Parse(n.Details.Value)));
+        		code.AddRange(Encoder.sLEB128(Int32.Parse(n.Details.Value))); //i32_const accepts signed ints, not unsigned idiot
         	} else if(n.Details.Group == TokenCodes.EXPRESSION) {
         		code.AddRange(EncodeBinaryExpression(n.Children[0]));
         		code.AddRange(EncodeBinaryExpression(n.Children[1]));
-        		
-        		Console.WriteLine("Order: " + n.Details.Value);
         		
         		if(n.Details.Value == "+") {
         			code.AddRange(Op.i32_add);

@@ -29,9 +29,9 @@ Ideally I will implement all the features required to build the ImmortalLang com
 - Parsing of binary expressions
 
 ## Next steps:
-`[DONE] Figure out how local variables work (instead of allocating part of the memory to each function variable).
-`[DONE] Begin parsing simple .imlang code and figure out how to translate that into wasm.
-`[DONE] Binary expression parsing
-`[Todo] Control flow statements
-`[Todo] Add variables
-`[Todo] Functions/classes
+`[DONE]` Figure out how local variables work (instead of allocating part of the memory to each function variable).
+`[DONE]` Begin parsing simple .imlang code and figure out how to translate that into wasm.
+`[DONE]` Binary expression parsing
+`[Todo]` Control flow statements
+`[Todo]` Add variables
+`[Todo]` Functions/classes
